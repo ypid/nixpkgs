@@ -968,7 +968,7 @@ in {
             (i: v: ''
               ${occ}/bin/nextcloud-occ config:system:set trusted_domains \
                 ${toString i} --value="${toString v}"
-            '') ([ cfg.hostName ] ++ cfg.settings.trusted_domains));
+            '') (lib.unique ([ cfg.hostName ] ++ cfg.settings.trusted_domains)));
 
         in {
           wantedBy = [ "multi-user.target" ];
