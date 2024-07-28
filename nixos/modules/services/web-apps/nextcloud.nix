@@ -704,11 +704,10 @@ in {
           };
           trusted_domains = mkOption {
             type = types.listOf types.str;
-            default = [];
+            default = ["${config.services.nextcloud.hostName}:443"];
             description = ''
               Trusted domains, from which the nextcloud installation will be
-              accessible. You don't need to add
-              `services.nextcloud.hostname` here.
+              accessible.
             '';
           };
           trusted_proxies = mkOption {
@@ -968,7 +967,7 @@ in {
             (i: v: ''
               ${occ}/bin/nextcloud-occ config:system:set trusted_domains \
                 ${toString i} --value="${toString v}"
-            '') (lib.unique ([ cfg.hostName ] ++ cfg.settings.trusted_domains)));
+            '') (lib.unique cfg.settings.trusted_domains));
 
         in {
           wantedBy = [ "multi-user.target" ];
@@ -1117,7 +1116,6 @@ in {
         caching.redis = lib.mkIf cfg.configureRedis true;
         settings = mkMerge [({
           datadirectory = lib.mkDefault "${datadir}/data";
-          trusted_domains = [ cfg.hostName ];
         }) (lib.mkIf cfg.configureRedis {
           "memcache.distributed" = ''\OC\Memcache\Redis'';
           "memcache.locking" = ''\OC\Memcache\Redis'';
