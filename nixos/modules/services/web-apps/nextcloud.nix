@@ -963,11 +963,6 @@ in {
             ${occ}/bin/nextcloud-occ maintenance:install \
                 ${installFlags}
           '';
-          occSetTrustedDomainsCmd = concatStringsSep "\n" (imap0
-            (i: v: ''
-              ${occ}/bin/nextcloud-occ config:system:set trusted_domains \
-                ${toString i} --value="${toString v}"
-            '') (lib.unique cfg.settings.trusted_domains));
 
         in {
           wantedBy = [ "multi-user.target" ];
@@ -1011,14 +1006,10 @@ in {
 
             ${occ}/bin/nextcloud-occ upgrade
 
-            ${occ}/bin/nextcloud-occ config:system:delete trusted_domains
-
             ${optionalString (cfg.extraAppsEnable && cfg.extraApps != { }) ''
                 # Try to enable apps
                 ${occ}/bin/nextcloud-occ app:enable ${concatStringsSep " " (attrNames cfg.extraApps)}
             ''}
-
-            ${occSetTrustedDomainsCmd}
           '';
           serviceConfig.Type = "oneshot";
           serviceConfig.User = "nextcloud";
